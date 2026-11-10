@@ -1,0 +1,6 @@
+pythermalcomfort==4.6.2
+influxdb-client>=1.40,<2
+tzdata
+python-dotenv>=1.0,<2
+pandas
+pytz
