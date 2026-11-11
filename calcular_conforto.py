@@ -63,8 +63,24 @@ def main():
     e = float(e_txt.replace(',', '.')) if e_txt else None
     origem = input('Origem dos dados (ex.: sensores; exemplo_didatico): ').strip()
     perfil = input('Met/clo contemporâneos ou perfil histórico? Descreva: ').strip()
-    if not origem or not perfil:
-        raise ValueError('Informe a origem e a identificação do perfil.')
+
+    origens_validas = {
+        'sensores',
+        'medicao_manual',
+        'questionario',
+        'relatorio',
+        'exemplo_didatico'
+    }
+
+    origem = origem.lower().strip()
+
+    if origem not in origens_validas:
+        raise ValueError(
+            f'Origem inválida. Utilize uma destas opções: {", ".join(sorted(origens_validas))}.'
+    )
+
+    if not perfil:
+        raise ValueError('Informe a identificação do perfil MET/CLO.')
     r = calcular(ta, rh, te, met, clo, v, e)
     print(json.dumps(r, ensure_ascii=False, indent=2, allow_nan=False))
     print('Hipótese: Tr = temperatura externa. ePMV, se presente, é exploratório para sala climatizada.')
@@ -74,7 +90,7 @@ def main():
         from influxdb_client import InfluxDBClient, Point, WritePrecision
         from influxdb_client.client.write_api import SYNCHRONOUS
         p = (Point('conforto_calculado').tag('zona', zona)
-             .tag('metodo', 'pmv_iso_epmv_exploratorio' if e else 'pmv_iso')
+             .tag('metodo', 'pmv_iso_epmv_exploratorio' if e is not None else 'pmv_iso')
              .tag('hipotese_tr', 'temperatura_externa')
              .tag('cenario_ar', str(v))
              .tag('cenario_e', str(e) if e is not None else 'ausente')
